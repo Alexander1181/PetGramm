@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # PetGram 🐾
 
 PetGram es una aplicación web enfocada en móviles diseñada para tiendas de mascotas y refugios, inspirada en la experiencia social de Instagram.
@@ -16,3 +17,7 @@ PetGram es una aplicación web enfocada en móviles diseñada para tiendas de ma
 1. Inicializar el proyecto React.
 2. Configurar el repositorio de GitHub.
 3. Implementar la primera versión del feed.
+=======
+# PetGramm
+Foro de y para mascotas
+>>>>>>> origin/main
