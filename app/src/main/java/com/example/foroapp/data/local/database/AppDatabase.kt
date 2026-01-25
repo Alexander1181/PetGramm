@@ -5,6 +5,8 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.example.foroapp.data.local.post.PostDao
+import com.example.foroapp.data.local.post.PostEntity
 import com.example.foroapp.data.local.user.UserDao
 import com.example.foroapp.data.local.user.UserEntity
 import kotlinx.coroutines.CoroutineScope
@@ -12,13 +14,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [UserEntity::class],
-    version = 1,
+    entities = [UserEntity::class, PostEntity::class],
+    version = 2,
     exportSchema = true
 )
 abstract class AppDatabase: RoomDatabase(){
     //exponer/importar todos los DAO de mis entidades
     abstract fun userDao(): UserDao
+    abstract fun postDao(): PostDao
 
     companion object {
         //para la instancia de la BD
@@ -42,8 +45,9 @@ abstract class AppDatabase: RoomDatabase(){
                             super.onCreate(db)
                             //corutina insertar datos iniciales en mis tablas
                             CoroutineScope(Dispatchers.IO).launch {
+                                val instance = INSTANCE ?: return@launch
                                 //precarga de datos por cada tabla que necesitemos
-                                val dao = getInstance(context).userDao()
+                                val dao = instance.userDao()
                                 val seed = listOf(
                                     UserEntity(
                                         name = "Admin",

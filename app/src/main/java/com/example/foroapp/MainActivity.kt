@@ -11,11 +11,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.foroapp.data.local.database.AppDatabase
+import com.example.foroapp.data.repository.PostRepository
 import com.example.foroapp.data.repository.UserRepository
 import com.example.foroapp.navigation.AppNavGraph
 import com.example.foroapp.ui.theme.ForoAppTheme
+import com.example.foroapp.ui.viewmodel.AppViewModelFactory
 import com.example.foroapp.ui.viewmodel.AuthViewModel
-import com.example.foroapp.ui.viewmodel.AuthViewModelFactory
+import com.example.foroapp.ui.viewmodel.PostViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,17 +40,23 @@ fun AppRoot(){
     val userDao = db.userDao()
     //creamos los repositorios asociados a los DAO
     val userRepository = UserRepository(userDao)
-    //creamos los viewmodel
-    val authViewModel: AuthViewModel = viewModel(
-        factory = AuthViewModelFactory(userRepository)
-    )
+    val postRepository = PostRepository(db.postDao())
+    
+    //creamos los viewmodel usando la factoría compartida
+    val factory = AppViewModelFactory(userRepository, postRepository)
+    val authViewModel: AuthViewModel = viewModel(factory = factory)
+    val postViewModel: PostViewModel = viewModel(factory = factory)
 
     //crear un cotrolador de navegación principal
     val navController = rememberNavController()
     ForoAppTheme { //modifico la plantilla de diseño al de material design
         //contenedor principal para el fondo de mi app
         Surface(color = MaterialTheme.colorScheme.background) {
-            AppNavGraph(navController = navController, authViewModel = authViewModel)
+            AppNavGraph(
+                navController = navController, 
+                authViewModel = authViewModel,
+                postViewModel = postViewModel
+            )
         }
     }
 }

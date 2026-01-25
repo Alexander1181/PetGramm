@@ -25,8 +25,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AppNavGraph(
-    navController: NavHostController, //libreria para manipular navegación (controlar navegacion)
-    authViewModel: AuthViewModel
+    navController: NavHostController, 
+    authViewModel: AuthViewModel,
+    postViewModel: PostViewModel
     ){
     //manejar el estado del drawer (menu lateral desplegable)
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -100,6 +101,7 @@ fun AppNavGraph(
                 composable(Route.Home.path){
                     HomeScreen(
                         isLoggedIn = isLoggedIn,
+                        postViewModel = postViewModel,
                         onGoLogin = goLogin,
                         onGoRegister = goRegister,
                         onGoCamera = goCamera
@@ -107,6 +109,23 @@ fun AppNavGraph(
                 }
                 composable(Route.Camera.path) {
                     CameraWrapperScreen(navController = navController)
+                }
+                composable(Route.CreatePost.path) {
+                    val imageUri = navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.get<String>("imageUri")
+                    
+                    CreatePostScreen(
+                        imageUri = imageUri,
+                        authViewModel = authViewModel,
+                        postViewModel = postViewModel,
+                        onPostSuccess = {
+                            navController.navigate(Route.Home.path) {
+                                popUpTo(Route.Home.path) { inclusive = true }
+                            }
+                        },
+                        onBack = { navController.popBackStack() }
+                    )
                 }
                 composable(Route.Login.path){
                     LoginScreenVm(

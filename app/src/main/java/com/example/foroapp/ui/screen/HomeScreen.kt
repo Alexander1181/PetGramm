@@ -24,34 +24,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.foroapp.data.local.post.PostEntity
+import com.example.foroapp.ui.viewmodel.PostViewModel
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// Funciones auxiliares para la cámara
-private fun createTempImageFile(context: Context): File {
-    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-    val storageDir = File(context.cacheDir, "images").apply {
-        if(!exists()) mkdirs()
-    }
-    return File(storageDir, "IMG_$timeStamp.jpg")
-}
-
-private fun getImageUriForFile(context: Context, file: File): Uri {
-    val authority = "${context.packageName}.fileprovider"
-    return FileProvider.getUriForFile(context, authority, file)
-}
-
-data class PostData(val author: String, val caption: String, val imageUrl: String)
-
 @Composable
-fun PetPostCard(post: PostData) {
+fun PetPostCard(post: PostEntity) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large, // Bordes bien redondeados
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
@@ -62,7 +49,7 @@ fun PetPostCard(post: PostData) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp), // Más espacio
+                    .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
@@ -96,7 +83,7 @@ fun PetPostCard(post: PostData) {
                 contentDescription = "Imagen",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(250.dp),
+                    .height(300.dp),
                 contentScale = ContentScale.Crop
             )
 
@@ -112,17 +99,16 @@ fun PetPostCard(post: PostData) {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
-                    // Like logic placeholder
                     var isLiked by remember { mutableStateOf(false) }
                     IconButton(onClick = { isLiked = !isLiked }) {
                         Icon(
-                            imageVector = if (isLiked) Icons.Default.FavoriteBorder else Icons.Default.FavoriteBorder, // Logic would change icon
-                            contentDescription = "Like",
+                            imageVector = Icons.Default.FavoriteBorder,
+                            contentDescription = "Me gusta",
                             tint = if (isLiked) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
                         )
                     }
                     IconButton(onClick = { /* Comment */ }) {
-                        Icon(Icons.Default.Message, contentDescription = "Comment")
+                        Icon(Icons.Default.Message, contentDescription = "Comentar")
                     }
                 }
             }
@@ -133,18 +119,13 @@ fun PetPostCard(post: PostData) {
 @Composable
 fun HomeScreen(
     isLoggedIn: Boolean,
+    postViewModel: PostViewModel,
     onGoLogin: () -> Unit,
     onGoRegister: () -> Unit,
     onGoCamera: () -> Unit = {}
 ) {
     val bg = MaterialTheme.colorScheme.background
-    val dummyPosts = remember {
-        listOf(
-            PostData("Alex", "¡Nuestra nueva mascota!", "https://images.unsplash.com/photo-1543466835-00a7927eba01"),
-            PostData("Maria", "Paseo por el parque", "https://images.unsplash.com/photo-1517849845537-4d257902454a"),
-            PostData("Juan", "Hora de dormir", "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba")
-        )
-    }
+    val posts by postViewModel.allPosts.collectAsStateWithLifecycle()
 
     Scaffold(
         floatingActionButton = {
@@ -165,41 +146,61 @@ fun HomeScreen(
                 .background(bg)
                 .padding(paddingValues)
         ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                item {
+            if (posts.isEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Text(
-                        text = "Muro de Mascotas",
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.ExtraBold,
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        "No hay publicaciones aún",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                     )
+                    if (isLoggedIn) {
+                        Spacer(Modifier.height(8.dp))
+                        TextButton(onClick = onGoCamera) {
+                            Text("¡Sé el primero en compartir algo!")
+                        }
+                    }
                 }
-
-                items(dummyPosts) { post ->
-                    PetPostCard(post)
-                }
-
-                if (!isLoggedIn) {
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
                     item {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 32.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                "Únete a la comunidad",
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                            Spacer(Modifier.height(16.dp))
-                            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                Button(onClick = onGoLogin) { Text("Entrar") }
-                                OutlinedButton(onClick = onGoRegister) { Text("Registrarse") }
+                        Text(
+                            text = "Muro de Mascotas",
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.ExtraBold,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
+
+                    items(posts) { post ->
+                        PetPostCard(post)
+                    }
+
+                    if (!isLoggedIn) {
+                        item {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 32.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    "Únete a la comunidad",
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                Spacer(Modifier.height(16.dp))
+                                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                    Button(onClick = onGoLogin) { Text("Entrar") }
+                                    OutlinedButton(onClick = onGoRegister) { Text("Registrarse") }
+                                }
                             }
                         }
                     }
