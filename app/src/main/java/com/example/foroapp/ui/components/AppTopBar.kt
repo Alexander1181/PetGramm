@@ -7,7 +7,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,8 +37,8 @@ fun AppTopBar(
     //del menu desplegable (menu de 3 puntos en el topBar)
     var showMenu by remember { mutableStateOf(false) }
 
-    //barra alineada en el centro del topBar
-    CenterAlignedTopAppBar(
+    //barra alineada a la izquierda del topBar
+    TopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary
         ),

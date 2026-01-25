@@ -19,6 +19,7 @@ import com.example.foroapp.ui.components.defaultDrawerItems
 import com.example.foroapp.ui.screen.HomeScreen
 import com.example.foroapp.ui.screen.LoginScreenVm
 import com.example.foroapp.ui.screen.RegisterScreenVm
+import com.example.foroapp.ui.screens.CameraWrapperScreen
 import com.example.foroapp.ui.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
@@ -39,6 +40,7 @@ fun AppNavGraph(
     val goHome: () -> Unit = { navController.navigate(Route.Home.path) } //ir al Home
     val goRegister: () -> Unit = { navController.navigate(Route.Register.path) } //ir al Registro
     val goLogin: () -> Unit = { navController.navigate(Route.Login.path) } //ir al Login
+    val goCamera: () -> Unit = { navController.navigate(Route.Camera.path) } //ir a la Cámara
     val logout: () -> Unit = {
         authViewModel.logout()
         goLogin()
@@ -97,8 +99,12 @@ fun AppNavGraph(
                     HomeScreen(
                         isLoggedIn = isLoggedIn,
                         onGoLogin = goLogin,
-                        onGoRegister = goRegister
+                        onGoRegister = goRegister,
+                        onGoCamera = goCamera
                     )
+                }
+                composable(Route.Camera.path) {
+                    CameraWrapperScreen(navController = navController)
                 }
                 composable(Route.Login.path){
                     LoginScreenVm(
