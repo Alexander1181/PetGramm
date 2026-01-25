@@ -16,11 +16,13 @@ import androidx.navigation.compose.composable
 import com.example.foroapp.ui.components.AppDrawer
 import com.example.foroapp.ui.components.AppTopBar
 import com.example.foroapp.ui.components.defaultDrawerItems
+import com.example.foroapp.ui.screen.CreatePostScreen
 import com.example.foroapp.ui.screen.HomeScreen
 import com.example.foroapp.ui.screen.LoginScreenVm
 import com.example.foroapp.ui.screen.RegisterScreenVm
 import com.example.foroapp.ui.screens.CameraWrapperScreen
 import com.example.foroapp.ui.viewmodel.AuthViewModel
+import com.example.foroapp.ui.viewmodel.PostViewModel
 import kotlinx.coroutines.launch
 
 @Composable

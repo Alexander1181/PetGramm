@@ -46,27 +46,23 @@ abstract class AppDatabase: RoomDatabase(){
                             //corutina insertar datos iniciales en mis tablas
                             CoroutineScope(Dispatchers.IO).launch {
                                 val instance = INSTANCE ?: return@launch
-                                //precarga de datos por cada tabla que necesitemos
-                                val dao = instance.userDao()
-                                val seed = listOf(
-                                    UserEntity(
-                                        name = "Admin",
-                                        email = "a@a.cl",
-                                        phone = "12345678",
-                                        password = "Admin123!"
-                                    ),
-                                    UserEntity(
-                                        name = "Cliente",
-                                        email = "c@c.cl",
-                                        phone = "12345678",
-                                        password = "Cliente123!"
+                                //precarga de datos para usuarios
+                                val userDao = instance.userDao()
+                                if(userDao.count() == 0){
+                                    val userSeed = listOf(
+                                        UserEntity(name = "Admin", email = "a@a.cl", phone = "12345678", password = "Admin123!"),
+                                        UserEntity(name = "Cliente", email = "c@c.cl", phone = "12345678", password = "Cliente123!")
                                     )
-                                )
-                                //validar que solo se inserten la primera vez
-                                if(dao.count() == 0){
-                                    seed.forEach { dao.insertar(it) }
+                                    userSeed.forEach { userDao.insertar(it) }
                                 }
-                                //repetimos el proceso para las demas tablas que lo necesiten
+                                
+                                //precarga de datos para el muro/foro
+                                val postDao = instance.postDao()
+                                val postSeed = listOf(
+                                    PostEntity(author = "Pet'sGramm", caption = "¡Bienvenidos a Pet'sGramm! La mejor comunidad para tus mascotas.", imageUrl = "https://images.unsplash.com/photo-1543466835-00a7927eba01"),
+                                    PostEntity(author = "Admin", caption = "Mira este perrito tan tierno 🐾", imageUrl = "https://images.unsplash.com/photo-1517849845537-4d257902454a")
+                                )
+                                postSeed.forEach { postDao.insertPost(it) }
 
                             }
 

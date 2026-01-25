@@ -125,7 +125,17 @@ fun HomeScreen(
     onGoCamera: () -> Unit = {}
 ) {
     val bg = MaterialTheme.colorScheme.background
-    val posts by postViewModel.allPosts.collectAsStateWithLifecycle()
+    val dbPosts by postViewModel.allPosts.collectAsStateWithLifecycle()
+
+    // Muro por defecto
+    val defaultPosts = remember {
+        listOf(
+            PostEntity(author = "Pet'sGramm", caption = "¡Bienvenidos a Pet'sGramm! 🐾", imageUrl = "https://images.unsplash.com/photo-1543466835-00a7927eba01"),
+            PostEntity(author = "Admin", caption = "Comparte las fotos de tus amigos peludos.", imageUrl = "https://images.unsplash.com/photo-1517849845537-4d257902454a")
+        )
+    }
+
+    val displayPosts = if (dbPosts.isEmpty()) defaultPosts else dbPosts
 
     Scaffold(
         floatingActionButton = {
@@ -146,61 +156,41 @@ fun HomeScreen(
                 .background(bg)
                 .padding(paddingValues)
         ) {
-            if (posts.isEmpty()) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                item {
                     Text(
-                        "No hay publicaciones aún",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                        text = "Muro de Mascotas",
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.ExtraBold,
+                        modifier = Modifier.padding(bottom = 8.dp)
                     )
-                    if (isLoggedIn) {
-                        Spacer(Modifier.height(8.dp))
-                        TextButton(onClick = onGoCamera) {
-                            Text("¡Sé el primero en compartir algo!")
-                        }
-                    }
                 }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
+
+                items(displayPosts) { post ->
+                    PetPostCard(post)
+                }
+
+                if (!isLoggedIn) {
                     item {
-                        Text(
-                            text = "Muro de Mascotas",
-                            style = MaterialTheme.typography.headlineLarge,
-                            fontWeight = FontWeight.ExtraBold,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                    }
-
-                    items(posts) { post ->
-                        PetPostCard(post)
-                    }
-
-                    if (!isLoggedIn) {
-                        item {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 32.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    "Únete a la comunidad",
-                                    textAlign = TextAlign.Center,
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                                Spacer(Modifier.height(16.dp))
-                                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                    Button(onClick = onGoLogin) { Text("Entrar") }
-                                    OutlinedButton(onClick = onGoRegister) { Text("Registrarse") }
-                                }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 32.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                "Únete a la comunidad",
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Spacer(Modifier.height(16.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Button(onClick = onGoLogin) { Text("Entrar") }
+                                OutlinedButton(onClick = onGoRegister) { Text("Registrarse") }
                             }
                         }
                     }
