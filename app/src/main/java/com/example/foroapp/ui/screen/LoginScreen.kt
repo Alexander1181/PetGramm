@@ -31,7 +31,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.foroapp.ui.viewmodel.AuthViewModel
 
@@ -91,15 +93,24 @@ private fun LoginScreen(
             .fillMaxSize() //ocupa todo
             .background(bg) //color de fondo de la caja
             .padding(16.dp), //margenes interiores a la caja
-            contentAlignment = Alignment.Center //centra todos sus elementos internos
+            contentAlignment = Alignment.TopCenter // Cambiado a TopCenter para que quede más arriba
     ){
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(top = 40.dp), // Margen arriba para no pegar al techo
             horizontalAlignment = Alignment.CenterHorizontally
         ){
             Text(
+                text = "Pet'sGramm",
+                style = MaterialTheme.typography.displayMedium,
+                fontWeight = FontWeight.Black,
+                color = MaterialTheme.colorScheme.primary,
+                letterSpacing = 2.sp
+            )
+            Spacer(Modifier.size(24.dp))
+            Text(
                 text = "Inicio de sesión",
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Medium
             )
             Spacer(Modifier.width(12.dp))
             //aqui deberian ir los campos del formulario

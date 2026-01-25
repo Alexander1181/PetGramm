@@ -43,9 +43,6 @@ fun AppTopBar(
             containerColor = MaterialTheme.colorScheme.primary
         ),
         title = {
-            Text(
-                text = "ForoApp",
-                style = MaterialTheme.typography.titleLarge,
                 maxLines = 1, //cantidad de lineas en que se puede mostrar el texto
                 overflow = TextOverflow.Ellipsis //agrega ... si no se puede mostrar el texto completo
 
