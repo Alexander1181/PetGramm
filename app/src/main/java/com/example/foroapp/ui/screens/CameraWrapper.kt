@@ -32,22 +32,11 @@ fun CameraWrapperScreen(navController: NavController) {
         File.createTempFile("JPEG_${timeStamp}_", ".jpg", context.cacheDir)
     }
     
-    // We need a content URI for the camera intent
-    // Note: In a real app, you need a FileProvider declared in manifest. 
-    // strictly for this MVP rapid prototype we might try cache path or check manifest later.
-    // For now assuming we need to set up FileProvider or use a simplified workflow.
-    // Let's use getUriForFile if possible, but requires authority config.
-    // Alternative: Use GetContent for Gallery which is simpler permissions-wise.
-    // Let's implement BOTH buttons.
-    
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
         if (success) {
-            // Navigate to CreatePost with the temp file URI
-            // Simplified: passing URI string as argument (URL encoding omitted for brevity in MVP)
             val uriString = Uri.fromFile(photoFile).toString()
-             // In real app, avoid passing large data. passing URI string is OK locally.
             navController.currentBackStackEntry?.savedStateHandle?.set("imageUri", uriString)
             navController.navigate(Screen.CreatePost.route)
         }
@@ -67,10 +56,8 @@ fun CameraWrapperScreen(navController: NavController) {
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-             // Try to construct URI. 
-             // IMPORTANT: FileProvider authorities must match applicationId + ".provider"
              try {
-                 val authority = "${context.packageName}.provider"
+                 val authority = "${context.packageName}.fileprovider"
                  val uri = FileProvider.getUriForFile(context, authority, photoFile)
                  cameraLauncher.launch(uri)
              } catch (e: Exception) {

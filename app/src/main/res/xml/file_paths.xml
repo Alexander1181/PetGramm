@@ -3,5 +3,5 @@
     <!-- Crear e indicar directorio dentro de mi app donde guardar las fotos -->
     <cache-path
         name="camera_cache"
-        path="images/" />
+        path="." />
 </paths>
