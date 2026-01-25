@@ -75,17 +75,19 @@ fun PetPostCard(post: PostEntity) {
                 )
             }
 
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(post.imageUrl)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = "Imagen",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp),
-                contentScale = ContentScale.Crop
-            )
+            if (post.imageUrls.isNotEmpty()) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(post.imageUrls.first())
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "Imagen",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(4f / 3f),
+                    contentScale = ContentScale.Crop
+                )
+            }
 
             // Content
             Column(modifier = Modifier.padding(16.dp)) {
@@ -127,15 +129,20 @@ fun HomeScreen(
     val bg = MaterialTheme.colorScheme.background
     val dbPosts by postViewModel.allPosts.collectAsStateWithLifecycle()
 
-    // Muro por defecto
-    val defaultPosts = remember {
+    // Muro global de la comunidad
+    val communityPosts = remember {
         listOf(
-            PostEntity(author = "Pet'sGramm", caption = "¡Bienvenidos a Pet'sGramm! 🐾", imageUrl = "https://images.unsplash.com/photo-1543466835-00a7927eba01"),
-            PostEntity(author = "Admin", caption = "Comparte las fotos de tus amigos peludos.", imageUrl = "https://images.unsplash.com/photo-1517849845537-4d257902454a")
+            PostEntity(author = "Luna", caption = "¡Jugando en el parque! 🌳", imageUrls = listOf("https://images.unsplash.com/photo-1543466835-00a7927eba01")),
+            PostEntity(author = "Firulais", caption = "Hora de la siesta... 💤", imageUrls = listOf("https://images.unsplash.com/photo-1517849845537-4d257902454a")),
+            PostEntity(author = "Michi", caption = "Explorando la casa 🐱", imageUrls = listOf("https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba")),
+            PostEntity(author = "Nala", caption = "¡Nueva pelota! 🎾", imageUrls = listOf("https://images.unsplash.com/photo-1537151608828-ea2b11777ee8"))
         )
     }
 
-    val displayPosts = if (dbPosts.isEmpty()) defaultPosts else dbPosts
+    // Combinamos las del usuario (DB) con las de la comunidad
+    val displayPosts = remember(dbPosts) {
+        dbPosts + communityPosts
+    }
 
     Scaffold(
         floatingActionButton = {

@@ -17,13 +17,13 @@ class PostViewModel(private val repository: PostRepository) : ViewModel() {
         initialValue = emptyList()
     )
 
-    fun createPost(author: String, caption: String, imageUrl: String) {
+    fun createPost(author: String, caption: String, imageUrls: List<String>) {
         viewModelScope.launch {
             repository.insert(
                 PostEntity(
                     author = author,
                     caption = caption,
-                    imageUrl = imageUrl
+                    imageUrls = imageUrls
                 )
             )
         }

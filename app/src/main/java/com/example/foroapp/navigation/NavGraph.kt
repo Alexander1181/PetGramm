@@ -113,12 +113,12 @@ fun AppNavGraph(
                     CameraWrapperScreen(navController = navController)
                 }
                 composable(Route.CreatePost.path) {
-                    val imageUri = navController.previousBackStackEntry
+                    val imageUris = navController.previousBackStackEntry
                         ?.savedStateHandle
-                        ?.get<String>("imageUri")
+                        ?.get<List<String>>("imageUris")
                     
                     CreatePostScreen(
-                        imageUri = imageUri,
+                        imageUris = imageUris,
                         authViewModel = authViewModel,
                         postViewModel = postViewModel,
                         onPostSuccess = {

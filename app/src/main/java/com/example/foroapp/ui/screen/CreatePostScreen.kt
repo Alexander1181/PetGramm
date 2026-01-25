@@ -2,6 +2,8 @@ package com.example.foroapp.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -23,7 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePostScreen(
-    imageUri: String?,
+    imageUris: List<String>?,
     authViewModel: AuthViewModel,
     postViewModel: PostViewModel,
     onPostSuccess: () -> Unit,
@@ -57,29 +59,35 @@ fun CreatePostScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Preview de la imagen
-            if (imageUri != null) {
-                AsyncImage(
-                    model = ImageRequest.Builder(context)
-                        .data(imageUri)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = "Preview",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp)
-                        .clip(RoundedCornerShape(12.dp)),
-                    contentScale = ContentScale.Crop
-                )
+            // Preview de las imágenes
+            if (!imageUris.isNullOrEmpty()) {
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(imageUris) { uri ->
+                        AsyncImage(
+                            model = ImageRequest.Builder(context)
+                                .data(uri)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = "Preview",
+                            modifier = Modifier
+                                .size(150.dp)
+                                .clip(RoundedCornerShape(12.dp)),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                }
             } else {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(300.dp)
+                        .height(150.dp)
                         .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("No hay imagen seleccionada")
+                    Text("No hay imágenes seleccionadas")
                 }
             }
 
@@ -98,12 +106,12 @@ fun CreatePostScreen(
             Button(
                 onClick = {
                     val authorName = currentUser?.name ?: "Usuario"
-                    if (imageUri != null) {
-                        postViewModel.createPost(authorName, caption, imageUri)
+                    if (!imageUris.isNullOrEmpty()) {
+                        postViewModel.createPost(authorName, caption, imageUris)
                         onPostSuccess()
                     }
                 },
-                enabled = imageUri != null && caption.isNotBlank(),
+                enabled = !imageUris.isNullOrEmpty() && caption.isNotBlank(),
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.medium
             ) {
