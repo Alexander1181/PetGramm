@@ -34,6 +34,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.foroapp.ui.viewmodel.AuthViewModel
 
@@ -49,9 +50,11 @@ fun LoginScreenVm(
     val state by vm.login.collectAsStateWithLifecycle()
 
     //verificar si el login es exitoso que debe hacer la pantalla
-    if(state.success){
-        vm.clearLoginResult() //limpia banderas/flags
-        onLoginOkNavigateHome() //redirecciono a la pantalla HomeScreen
+    LaunchedEffect(state.success) {
+        if(state.success){
+            vm.clearLoginResult() //limpia banderas/flags
+            onLoginOkNavigateHome() //redirecciono a la pantalla HomeScreen
+        }
     }
     LoginScreen(
         //datos que estan el data class del LoginUiState

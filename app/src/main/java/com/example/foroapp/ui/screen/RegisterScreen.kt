@@ -34,6 +34,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.foroapp.ui.viewmodel.AuthViewModel
 
@@ -45,9 +46,11 @@ fun RegisterScreenVm(
 ){
     val state by vm.register.collectAsStateWithLifecycle()
 
-    if(state.success){
-        //vm.clearRegisterResult() // Si existiera un metodo, pero parece que no hay explícito, igual navegamos
-        onRegisterOkNavigate()
+    LaunchedEffect(state.success) {
+        if(state.success){
+            // Sugerencia: Limpiar el estado de registro si fuera necesario
+            onRegisterOkNavigate()
+        }
     }
 
     RegisterScreen(
