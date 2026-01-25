@@ -43,9 +43,11 @@ fun AppTopBar(
             containerColor = MaterialTheme.colorScheme.primary
         ),
         title = {
+            Text(
+                text = "Pet'sGramm",
+                style = MaterialTheme.typography.titleLarge,
                 maxLines = 1, //cantidad de lineas en que se puede mostrar el texto
                 overflow = TextOverflow.Ellipsis //agrega ... si no se puede mostrar el texto completo
-
             )
         },
         //icono de hamburguesa para el menu desplegable
@@ -96,10 +98,7 @@ fun AppTopBar(
                         onClick = { showMenu = false; onLogout() }
                     )
                 }
-
             }
         }
     )
-
-
 }
