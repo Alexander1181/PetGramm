@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.example.foroapp.data.repository.UserRepository
+import com.example.foroapp.data.local.user.UserEntity
 
 //elementos para manipular los estados de mis formularios
 data class LoginUiState(
@@ -66,6 +67,12 @@ class AuthViewModel(
     private val _register = MutableStateFlow(RegisterUiState()) //estado interno para el registro
     val register: StateFlow<RegisterUiState> = _register //copia de la anterior para que se pueda ver sus datos
 
+    private val _isLoggedIn = MutableStateFlow(false)
+    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn
+
+    private val _currentUser = MutableStateFlow<UserEntity?>(null)
+    val currentUser: StateFlow<UserEntity?> = _currentUser
+
     //funciones de manejo de los formularios
     //Login
 
@@ -101,6 +108,9 @@ class AuthViewModel(
             //actualizamos los datos del state del formulario
             _login.update {
                 if(result.isSuccess){
+                    val user = result.getOrNull()
+                    _isLoggedIn.value = true
+                    _currentUser.value = user
                     it.copy(isSubmitting = false,success = true, errorMsg = null)
                 } else {
                     it.copy(isSubmitting = false,success = false,
@@ -174,6 +184,9 @@ class AuthViewModel(
 
             _register.update {
                 if(result.isSuccess){
+                    // For register, we usually want them to login manually or auto-login.
+                    // Let's keep it simple: success means they can go to login.
+                    // If we wanted auto-login, we'd fetch the user here.
                     it.copy(isSubmitting = false,success = true, errorMsg = null)
                 } else {
                     it.copy(isSubmitting = false,success = false,
@@ -185,7 +198,11 @@ class AuthViewModel(
 
         }
     }
-
-
+    fun logout() {
+        _isLoggedIn.value = false
+        _currentUser.value = null
+        _login.value = LoginUiState()
+        _register.value = RegisterUiState()
+    }
 
 }

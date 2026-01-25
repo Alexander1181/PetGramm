@@ -2,6 +2,7 @@ package com.example.foroapp.ui.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
@@ -28,7 +29,9 @@ fun AppTopBar(
     onOpenDrawer: () -> Unit, //abre el  menu desplegable
     onHome: () -> Unit, //redirige al home
     onLogin: () -> Unit, //redirige al login
-    onRegister: () -> Unit //redirige al registro
+    onRegister: () -> Unit, //redirige al registro
+    isLoggedIn: Boolean,
+    onLogout: () -> Unit
 ){
     //creamos una variable que recuerde el estado
     //del menu desplegable (menu de 3 puntos en el topBar)
@@ -58,11 +61,17 @@ fun AppTopBar(
             IconButton(onClick = onHome) {
                 Icon(imageVector = Icons.Filled.Home, contentDescription = "Home")
             }
-            IconButton(onClick = onLogin) {
-                Icon(imageVector = Icons.Filled.Person, contentDescription = "Login")
-            }
-            IconButton(onClick = onRegister) {
-                Icon(imageVector = Icons.Filled.AccountCircle, contentDescription = "Register")
+            if (!isLoggedIn) {
+                IconButton(onClick = onLogin) {
+                    Icon(imageVector = Icons.Filled.Person, contentDescription = "Login")
+                }
+                IconButton(onClick = onRegister) {
+                    Icon(imageVector = Icons.Filled.AccountCircle, contentDescription = "Register")
+                }
+            } else {
+                IconButton(onClick = onLogout) {
+                    Icon(imageVector = Icons.Filled.ExitToApp, contentDescription = "Logout")
+                }
             }
             IconButton(onClick = { showMenu = true }) {
                 Icon(imageVector = Icons.Filled.MoreVert, contentDescription = "Ver Más")
@@ -75,14 +84,21 @@ fun AppTopBar(
                     text = { Text("Ir al Home")},
                     onClick = { showMenu = false; onHome() }
                 )
-                DropdownMenuItem(
-                    text = { Text("Ir al Inicio de Sesión")},
-                    onClick = { showMenu = false; onLogin() }
-                )
-                DropdownMenuItem(
-                    text = { Text("Ir al Registro")},
-                    onClick = { showMenu = false; onRegister() }
-                )
+                if (!isLoggedIn) {
+                    DropdownMenuItem(
+                        text = { Text("Ir al Inicio de Sesión")},
+                        onClick = { showMenu = false; onLogin() }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Ir al Registro")},
+                        onClick = { showMenu = false; onRegister() }
+                    )
+                } else {
+                    DropdownMenuItem(
+                        text = { Text("Cerrar Sesión")},
+                        onClick = { showMenu = false; onLogout() }
+                    )
+                }
 
             }
         }

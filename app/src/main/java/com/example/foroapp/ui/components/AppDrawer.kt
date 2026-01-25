@@ -2,6 +2,7 @@ package com.example.foroapp.ui.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
@@ -49,11 +50,22 @@ fun AppDrawer(
 //funcion para rellenar la lista de items del menu
 @Composable
 fun defaultDrawerItems(
+    isLoggedIn: Boolean,
     onHome: () -> Unit,
     onLogin: () -> Unit,
-    onRegister: () -> Unit
-): List <DrawerItem> = listOf(
-    DrawerItem("Ir a la Página Principal", Icons.Filled.Home, onHome),
-    DrawerItem("Ir al Inicio de sesión", Icons.Filled.AccountCircle, onLogin),
-    DrawerItem("Ir al Registro", Icons.Filled.Person, onRegister)
-)
+    onRegister: () -> Unit,
+    onLogout: () -> Unit
+): List <DrawerItem> {
+    val items = mutableListOf<DrawerItem>()
+    
+    items.add(DrawerItem("Ir a la Página Principal", Icons.Filled.Home, onHome))
+    
+    if (isLoggedIn) {
+        items.add(DrawerItem("Cerrar Sesión", Icons.Filled.ExitToApp, onLogout))
+    } else {
+        items.add(DrawerItem("Ir al Inicio de sesión", Icons.Filled.AccountCircle, onLogin))
+        items.add(DrawerItem("Ir al Registro", Icons.Filled.Person, onRegister))
+    }
+    
+    return items
+}

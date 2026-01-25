@@ -63,6 +63,7 @@ private fun getImageUriForFile(context: Context, file: File): Uri {
 }
 @Composable
 fun HomeScreen(
+    isLoggedIn: Boolean,
     onGoLogin: () -> Unit,
     onGoRegister: () -> Unit
 ){
@@ -226,11 +227,13 @@ fun HomeScreen(
                 }
             }
 
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ){
-                Button(onClick = onGoLogin) { Text("Ir al inicio de sesión") }
-                OutlinedButton(onClick = onGoRegister) { Text("Ir al Registro") }
+            if (!isLoggedIn) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ){
+                    Button(onClick = onGoLogin) { Text("Ir al inicio de sesión") }
+                    OutlinedButton(onClick = onGoRegister) { Text("Ir al Registro") }
+                }
             }
 
         }
