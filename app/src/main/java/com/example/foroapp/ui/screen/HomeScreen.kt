@@ -51,13 +51,18 @@ data class PostData(val author: String, val caption: String, val imageUrl: Strin
 fun PetPostCard(post: PostData) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
+        shape = MaterialTheme.shapes.large, // Bordes bien redondeados
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp)
     ) {
         Column {
+            // Header
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(12.dp),
+                    .padding(16.dp), // Más espacio
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
@@ -95,18 +100,30 @@ fun PetPostCard(post: PostData) {
                 contentScale = ContentScale.Crop
             )
 
-            Column(modifier = Modifier.padding(12.dp)) {
+            // Content
+            Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = post.caption,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium
                 )
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(16.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    horizontalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
-                    Icon(Icons.Default.FavoriteBorder, contentDescription = "Me gusta")
-                    Icon(Icons.Default.Message, contentDescription = "Comentar")
+                    // Like logic placeholder
+                    var isLiked by remember { mutableStateOf(false) }
+                    IconButton(onClick = { isLiked = !isLiked }) {
+                        Icon(
+                            imageVector = if (isLiked) Icons.Default.FavoriteBorder else Icons.Default.FavoriteBorder, // Logic would change icon
+                            contentDescription = "Like",
+                            tint = if (isLiked) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    IconButton(onClick = { /* Comment */ }) {
+                        Icon(Icons.Default.Message, contentDescription = "Comment")
+                    }
                 }
             }
         }

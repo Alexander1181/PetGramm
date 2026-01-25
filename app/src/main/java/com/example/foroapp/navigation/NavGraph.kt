@@ -35,6 +35,7 @@ fun AppNavGraph(
 
     // Observar el estado de sesión
     val isLoggedIn by authViewModel.isLoggedIn.collectAsState()
+    val currentUser by authViewModel.currentUser.collectAsState()
 
     //Helpers de navegaciones (para poder reutilizarlos)
     val goHome: () -> Unit = { navController.navigate(Route.Home.path) } //ir al Home
@@ -52,6 +53,7 @@ fun AppNavGraph(
         drawerContent = { //contenido del menu
             AppDrawer( //llamamos al component AppDrawer
                 currentRoute = null,
+                userName = currentUser?.name,
                 items = defaultDrawerItems(
                     isLoggedIn = isLoggedIn,
                     onHome = {
