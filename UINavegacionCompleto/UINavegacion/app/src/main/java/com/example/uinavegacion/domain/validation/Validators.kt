@@ -1,6 +1,6 @@
 package com.example.uinavegacion.domain.validation
 
-import android.util.Patterns
+// import android.util.Patterns
 
 
 //archivo para crear las validaciones de cada dato pedido en los distintos
@@ -16,8 +16,9 @@ fun validateNameLettersOnly(nombre: String): String?{
 
 fun validateEmail(email: String): String? {
     if(email.isBlank()) return "El correo es obligatorio"
-    val ok = Patterns.EMAIL_ADDRESS.matcher(email).matches()
-    return if(!ok) "Formato de correo inválido" else null
+    // Regex estándar para email
+    val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")
+    return if(!emailRegex.matches(email)) "Formato de correo inválido" else null
 }
 
 fun validatePhoneDigitsOnly(telefono: String): String?{
@@ -33,7 +34,7 @@ fun validateStringPassword(pass: String): String?{
     if(!pass.any { it.isUpperCase() }) return "Debe tener al menos 1 mayúscula"
     if(!pass.any { it.isLowerCase() }) return "Debe tener al menos 1 minúscula"
     if(!pass.any { it.isDigit() }) return "Debe tener al menos 1 número"
-    if(!pass.any { it.isLetterOrDigit() }) return "Debe tener al menos 1 símbolo"
+    if(pass.all { it.isLetterOrDigit() }) return "Debe tener al menos 1 símbolo"
     if(pass.contains(' ')) return "No debe contener espacios en blanco"
     return null
 }

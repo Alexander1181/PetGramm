@@ -14,6 +14,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.example.foroapp.data.repository.UserRepository
 import com.example.foroapp.data.local.user.UserEntity
+import com.example.foroapp.domain.model.Country
+import com.example.foroapp.domain.model.supportedCountries
+import com.example.foroapp.domain.validation.validatePhoneLength
 
 //elementos para manipular los estados de mis formularios
 data class LoginUiState(
@@ -38,6 +41,7 @@ data class RegisterUiState(
     val email: String = "",
     val pass: String = "",
     val confirm: String = "",
+    val selectedCountry: Country = supportedCountries.first(),
     //mostrar errores de cada campo del formulario
     val nameError: String? = null,
     val phoneError: String? = null,
@@ -101,7 +105,7 @@ class AuthViewModel(
         //ejecuto una corutina
         viewModelScope.launch {
             _login.update { it.copy(isSubmitting = true, errorMsg = null, success = false) }
-            delay(2000)
+            
             //buscar en memoria si los datos son correctos
             val  result = repository.login(s.email.trim(), s.pass)
 
@@ -150,10 +154,25 @@ class AuthViewModel(
         }
         recomputeRegisterCanSubmit()
     }
+    fun onCountryChange(country: Country){
+        _register.update { it.copy(selectedCountry = country) }
+        // Re-validar el teléfono si cambia el país
+        val currentPhone = _register.value.phone
+        if(currentPhone.isNotEmpty()){
+            val error = validatePhoneLength(currentPhone, country.digits)
+            _register.update { it.copy(phoneError = error) }
+        }
+        recomputeRegisterCanSubmit()
+    }
+
     fun onPhoneChange(value: String){
         val digitsOnly = value.filter { it.isDigit() }
+        val country = _register.value.selectedCountry
         _register.update {
-            it.copy(phone = digitsOnly, phoneError = validatePhoneDigitsOnly(digitsOnly))
+            it.copy(
+                phone = digitsOnly, 
+                phoneError = validatePhoneLength(digitsOnly, country.digits) ?: validatePhoneDigitsOnly(digitsOnly)
+            )
         }
         recomputeRegisterCanSubmit()
     }
@@ -173,7 +192,7 @@ class AuthViewModel(
         if(!s.canSubmit || s.isSubmitting) return
         viewModelScope.launch {
             _register.update { it.copy(isSubmitting = true, errorMsg = null, success = false) }
-            delay(2000)
+            
             //registramos
             val result = repository.register(
                 name = s.name,
@@ -184,18 +203,12 @@ class AuthViewModel(
 
             _register.update {
                 if(result.isSuccess){
-                    // For register, we usually want them to login manually or auto-login.
-                    // Let's keep it simple: success means they can go to login.
-                    // If we wanted auto-login, we'd fetch the user here.
                     it.copy(isSubmitting = false,success = true, errorMsg = null)
                 } else {
                     it.copy(isSubmitting = false,success = false,
                         errorMsg = result.exceptionOrNull()?.message ?: "No se pudo registrar")
                 }
             }
-
-
-
         }
     }
     fun logout() {
@@ -205,4 +218,47 @@ class AuthViewModel(
         _register.value = RegisterUiState()
     }
 
+    fun updateProfile(name: String, phone: String, nickname: String?) {
+        viewModelScope.launch {
+            val user = _currentUser.value
+            if (user != null) {
+                val updatedUser = user.copy(name = name, phone = phone, nickname = nickname)
+                repository.update(updatedUser)
+                _currentUser.value = updatedUser // Update the UI immediately
+            }
+        }
+    }
+
+    fun changePassword(oldPass: String, newPass: String, confirmPass: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            val user = _currentUser.value
+            if (user != null) {
+                if (user.password != oldPass) {
+                    onError("La contraseña actual no es correcta.")
+                    return@launch
+                }
+                if (newPass != confirmPass) {
+                    onError("Las nuevas contraseñas no coinciden.")
+                    return@launch
+                }
+                val passError = validateStringPassword(newPass)
+                if (passError != null) {
+                    onError(passError)
+                    return@launch
+                }
+                
+                repository.changePassword(user.email, newPass)
+                // Update local user with new pass
+                _currentUser.value = user.copy(password = newPass)
+                onSuccess()
+            }
+        }
+    }
+
+    fun recoverPassword(email: String, onResult: (String) -> Unit) {
+        viewModelScope.launch {
+            val res = repository.recoverPassword(email)
+            onResult(res.getOrElse { it.message ?: "Error" })
+        }
+    }
 }

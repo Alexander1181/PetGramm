@@ -16,20 +16,26 @@ import androidx.navigation.compose.composable
 import com.example.foroapp.ui.components.AppDrawer
 import com.example.foroapp.ui.components.AppTopBar
 import com.example.foroapp.ui.components.defaultDrawerItems
-import com.example.foroapp.ui.screen.CreatePostScreen
-import com.example.foroapp.ui.screen.HomeScreen
-import com.example.foroapp.ui.screen.LoginScreenVm
-import com.example.foroapp.ui.screen.RegisterScreenVm
+import com.example.foroapp.ui.navigation.Screen
+import com.example.foroapp.ui.screens.CreatePostScreen
+import com.example.foroapp.ui.screens.HomeScreen
+import com.example.foroapp.ui.screens.LoginScreen
+import com.example.foroapp.ui.screens.ProfileScreen
+import com.example.foroapp.ui.screens.RegisterScreen
+import com.example.foroapp.ui.screens.SettingsScreen
 import com.example.foroapp.ui.screens.CameraWrapperScreen
 import com.example.foroapp.ui.viewmodel.AuthViewModel
 import com.example.foroapp.ui.viewmodel.PostViewModel
+import com.example.foroapp.ui.viewmodel.CommentViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun AppNavGraph(
     navController: NavHostController, 
     authViewModel: AuthViewModel,
-    postViewModel: PostViewModel
+    postViewModel: PostViewModel,
+    commentViewModel: CommentViewModel,
+    notificationViewModel: com.example.foroapp.ui.viewmodel.NotificationViewModel
     ){
     //manejar el estado del drawer (menu lateral desplegable)
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -45,6 +51,8 @@ fun AppNavGraph(
     val goRegister: () -> Unit = { navController.navigate(Route.Register.path) } //ir al Registro
     val goLogin: () -> Unit = { navController.navigate(Route.Login.path) } //ir al Login
     val goCamera: () -> Unit = { navController.navigate(Route.Camera.path) } //ir a la Cámara
+    val goProfile: () -> Unit = { navController.navigate(Screen.Profile.route) } //ir al Perfil
+    val goSettings: () -> Unit = { navController.navigate(Screen.Settings.route) } //ir a Ajustes
     val logout: () -> Unit = {
         authViewModel.logout()
         goLogin()
@@ -74,6 +82,10 @@ fun AppNavGraph(
                     onLogout = {
                         scope.launch { drawerState.close() }
                         logout()
+                    },
+                    onProfile = {
+                        scope.launch { drawerState.close() }
+                        goProfile()
                     }
                 )
 
@@ -89,24 +101,30 @@ fun AppNavGraph(
                     onRegister = goRegister,
                     onLogin = goLogin,
                     isLoggedIn = isLoggedIn,
-                    onLogout = logout
+                    onLogout = logout,
+                    onNotifications = { 
+                        scope.launch { drawerState.close() }
+                        navController.navigate(Route.Notifications.path) 
+                    }
                 )
             }
         ) { innerPadding -> //padding para evitar solapar contenidos
             //construir el contenedor para mostrar los destinos de las navegaciones
             NavHost(
                 navController = navController, //controlador de navegacion
-                startDestination = Route.Login.path, // FIX: Start at Login, not Home
+                startDestination = Route.Login.path, // ARREGLO: Iniciar en Login, no en Home
                 modifier = Modifier.padding(innerPadding) //respeta el espacio del topBar
             ){
                 //screen aceptadas para dibujar
                 composable(Route.Home.path){
                     HomeScreen(
                         isLoggedIn = isLoggedIn,
+                        authViewModel = authViewModel,
                         postViewModel = postViewModel,
                         onGoLogin = goLogin,
                         onGoRegister = goRegister,
-                        onGoCamera = goCamera
+                        onGoCamera = goCamera,
+                        onCommentClick = { postId -> navController.navigate(Route.Comments.createRoute(postId)) }
                     )
                 }
                 composable(Route.Camera.path) {
@@ -129,18 +147,46 @@ fun AppNavGraph(
                         onBack = { navController.popBackStack() }
                     )
                 }
+                composable(Route.Comments.path) { backStackEntry ->
+                    val postId = backStackEntry.arguments?.getString("postId")?.toLongOrNull() ?: 0L
+                    com.example.foroapp.ui.screens.CommentsScreen(
+                        postId = postId,
+                        commentViewModel = commentViewModel,
+                        authViewModel = authViewModel,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
                 composable(Route.Login.path){
-                    LoginScreenVm(
+                    LoginScreen(
                         vm = authViewModel,
-                        onLoginOkNavigateHome = goHome, // FIX: Navigate to Home on success
+                        onLoginOkNavigateHome = goHome, // ARREGLO: Navegar a Home al tener éxito
                         onGoRegister = goRegister
                     )
                 }
                 composable(Route.Register.path){
-                    RegisterScreenVm(
+                    RegisterScreen(
                         vm = authViewModel,
                         onRegisterOkNavigate = goLogin, // Al registrarse, ir al login
                         onGoLogin = goLogin
+                    )
+                }
+                composable(Screen.Profile.route) {
+                    ProfileScreen(
+                        authViewModel = authViewModel,
+                        postViewModel = postViewModel,
+                        commentViewModel = commentViewModel,
+                        onGoToSettings = goSettings,
+                        onGoToCamera = goCamera
+                    )
+                }
+                composable(Screen.Settings.route) {
+                    SettingsScreen(authViewModel = authViewModel)
+                }
+                composable(Route.Notifications.path) {
+                    com.example.foroapp.ui.screens.NotificationScreen(
+                        authViewModel = authViewModel,
+                        notificationViewModel = notificationViewModel,
+                        onBack = { navController.popBackStack() }
                     )
                 }
             }

@@ -99,13 +99,15 @@ fun defaultDrawerItems(
     onHome: () -> Unit,
     onLogin: () -> Unit,
     onRegister: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onProfile: () -> Unit
 ): List <DrawerItem> {
     val items = mutableListOf<DrawerItem>()
     
     items.add(DrawerItem("Ir a la Página Principal", Icons.Filled.Home, onHome))
     
     if (isLoggedIn) {
+        items.add(DrawerItem("Mi Perfil", Icons.Filled.AccountCircle, onProfile))
         items.add(DrawerItem("Cerrar Sesión", Icons.Filled.ExitToApp, onLogout))
     } else {
         items.add(DrawerItem("Ir al Inicio de sesión", Icons.Filled.AccountCircle, onLogin))

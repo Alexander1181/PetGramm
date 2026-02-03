@@ -23,7 +23,15 @@ fun validateEmail(email: String): String? {
 fun validatePhoneDigitsOnly(telefono: String): String?{
     if(telefono.isBlank()) return "El teléfono es obligatorio"
     if(!telefono.all { it.isDigit() }) return "Solo deben ser números"
-    if(telefono.length !in 8 .. 15) return "Debe tener entre 8 y 15 numeros"
+    // ELIMINAMOS LA VALIDACIÓN DE RANGO AQUÍ, LA HAREMOS ESPECÍFICA POR PAÍS
+    // if(telefono.length !in 8 .. 15) return "Debe tener entre 8 y 15 numeros"
+    return null
+}
+
+fun validatePhoneLength(telefono: String, expectedLength: Int): String? {
+    if (telefono.length != expectedLength) {
+        return "Debe tener $expectedLength dígitos"
+    }
     return null
 }
 

@@ -13,6 +13,9 @@ data class UserEntity(
     val name: String,
     val email: String,
     val phone: String,
-    val password: String
-    //investigar como identificar las llaves foráneas
+    val password: String,
+    val nickname: String? = null,
+    val profilePictureUrl: String? = null,
+    val isBanned: Boolean = false,
+    val role: String = "user" // roles: "admin", "mod", "user"
 )

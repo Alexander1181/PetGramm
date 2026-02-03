@@ -77,4 +77,17 @@ dependencies {
 
     // Image Loading (Coil)
     implementation("io.coil-kt:coil-compose:2.7.0")
+
+    // Image Cropper
+    implementation("com.github.CanHub:Android-Image-Cropper:4.5.0")
+    
+    // DataStore (Local Storage)
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+    // ==== REST API (Retrofit) ====
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 }

@@ -12,5 +12,6 @@ data class PostEntity(
     val caption: String,
     @TypeConverters(Converters::class)
     val imageUrls: List<String>,
-    val timestamp: Long = System.currentTimeMillis()
+    val timestamp: Long = System.currentTimeMillis(),
+    val likes: Int = 0
 )

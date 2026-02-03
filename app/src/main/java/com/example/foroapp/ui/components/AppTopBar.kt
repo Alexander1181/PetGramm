@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.DropdownMenu
@@ -31,7 +32,8 @@ fun AppTopBar(
     onLogin: () -> Unit, //redirige al login
     onRegister: () -> Unit, //redirige al registro
     isLoggedIn: Boolean,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onNotifications: () -> Unit = {}
 ){
     //creamos una variable que recuerde el estado
     //del menu desplegable (menu de 3 puntos en el topBar)
@@ -59,6 +61,11 @@ fun AppTopBar(
         actions = {
             IconButton(onClick = onHome) {
                 Icon(imageVector = Icons.Filled.Home, contentDescription = "Home")
+            }
+            if (isLoggedIn) {
+                IconButton(onClick = onNotifications) {
+                    Icon(imageVector = androidx.compose.material.icons.Icons.Filled.Notifications, contentDescription = "Notificaciones")
+                }
             }
             if (!isLoggedIn) {
                 IconButton(onClick = onLogin) {
